@@ -1,0 +1,32 @@
+logging:
+  level:
+    root: INFO
+    az.pashabank: DEBUG
+
+spring:
+  application:
+    name: investigate-bff
+
+server:
+  port: 8084
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - prometheus
+          - metrics
+          - env
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
