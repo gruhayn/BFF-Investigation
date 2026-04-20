@@ -1,0 +1,405 @@
+openapi: 3.1.0
+info:
+  title: Investigate BFF API
+  version: 1.0.0
+  description: REST API for the investigate-bff service.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/investigate-bff/customers:
+    get:
+      summary: List customers
+      operationId: listCustomers
+      parameters:
+        - in: query
+          name: filter_id
+          schema:
+            type: string
+        - in: query
+          name: filter_name
+          schema:
+            type: string
+        - in: query
+          name: filter_email
+          schema:
+            type: string
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: page_offset
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: page_limit
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: include
+          schema:
+            type: string
+          description: Comma-separated includes. Supported values are addresses, bank_accounts, transactions, contacts.
+      responses:
+        "200":
+          description: Customers returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPageResponse"
+        "400":
+          description: Malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unexpected server failure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/investigate-bff/accounts:
+    get:
+      summary: List accounts
+      operationId: listAccounts
+      parameters:
+        - in: query
+          name: filter_id
+          schema:
+            type: string
+        - in: query
+          name: filter_bank_name
+          schema:
+            type: string
+        - in: query
+          name: filter_currency
+          schema:
+            type: string
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: page_offset
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: page_limit
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: include
+          schema:
+            type: string
+          description: Comma-separated includes. Supported values are holder and transactions.
+      responses:
+        "200":
+          description: Accounts returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountPageResponse"
+        "400":
+          description: Malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unexpected server failure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/investigate-bff/customer-summary:
+    get:
+      summary: Get customer summary
+      operationId: getCustomerSummary
+      parameters:
+        - in: query
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Customer summary returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerSummary"
+        "404":
+          description: Customer was not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unexpected server failure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/investigate-bff/health:
+    get:
+      summary: Service health
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy.
+components:
+  schemas:
+    PageInfo:
+      type: object
+      required: [total_count, offset, limit, has_more]
+      properties:
+        total_count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        has_more:
+          type: boolean
+    Transaction:
+      type: object
+      required: [id, account_id, amount, description, date, type]
+      properties:
+        id:
+          type: string
+        account_id:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        date:
+          type: string
+        type:
+          type: string
+    Address:
+      type: object
+      required: [id, customer_id, street, city, country, zip_code]
+      properties:
+        id:
+          type: string
+        customer_id:
+          type: string
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        zip_code:
+          type: string
+    Contact:
+      type: object
+      required: [id, customer_id, phone, type]
+      properties:
+        id:
+          type: string
+        customer_id:
+          type: string
+        phone:
+          type: string
+        type:
+          type: string
+    BankAccount:
+      type: object
+      required: [id, customer_id, account_number, bank_name, balance, currency]
+      properties:
+        id:
+          type: string
+        customer_id:
+          type: string
+        account_number:
+          type: string
+        bank_name:
+          type: string
+        balance:
+          type: number
+        currency:
+          type: string
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+    Customer:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        bank_accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/BankAccount"
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+    CustomerPageResponse:
+      type: object
+      required: [items, has_more, page_info]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+        next_cursor:
+          type: string
+        has_more:
+          type: boolean
+        page_info:
+          $ref: "#/components/schemas/PageInfo"
+    AccountHolder:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+    AccountDetail:
+      type: object
+      required: [id, account_number, bank_name, balance, currency]
+      properties:
+        id:
+          type: string
+        account_number:
+          type: string
+        bank_name:
+          type: string
+        balance:
+          type: number
+        currency:
+          type: string
+        holder:
+          $ref: "#/components/schemas/AccountHolder"
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+    AccountPageResponse:
+      type: object
+      required: [items, has_more, page_info]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccountDetail"
+        next_cursor:
+          type: string
+        has_more:
+          type: boolean
+        page_info:
+          $ref: "#/components/schemas/PageInfo"
+    TransactionRow:
+      type: object
+      required: [transaction_id, account_number, amount, description, date, type]
+      properties:
+        transaction_id:
+          type: string
+        account_number:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        date:
+          type: string
+        type:
+          type: string
+    CustomerSummary:
+      type: object
+      required: [id, name, email, total_balance, account_count, transaction_count, addresses, contacts, recent_activity]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        total_balance:
+          type: number
+        account_count:
+          type: integer
+        transaction_count:
+          type: integer
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+        recent_activity:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionRow"
+    ErrorDetail:
+      type: object
+      required: [field, reason]
+      properties:
+        field:
+          type: string
+        reason:
+          type: string
+        meta:
+          type: object
+          additionalProperties: true
+    ErrorBody:
+      type: object
+      required: [code, message, id]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        id:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorBody"
