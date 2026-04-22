@@ -1,0 +1,35 @@
+logging:
+  level:
+    root: INFO
+    az.pashabank: DEBUG
+
+spring:
+  application:
+    name: investigate-bff-virtual-threads
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8081
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - prometheus
+          - metrics
+          - env
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

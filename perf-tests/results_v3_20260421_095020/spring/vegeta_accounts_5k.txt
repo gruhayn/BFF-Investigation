@@ -1,0 +1,9 @@
+Requests      [total, rate, throughput]         149996, 4999.72, 4999.64
+Duration      [total, attack, wait]             30.001s, 30.001s, 290.125µs
+Latencies     [min, mean, 50, 90, 95, 99, max]  178.541µs, 174.678ms, 482.371µs, 622.962ms, 804.347ms, 1.265s, 1.4s
+Bytes In      [total, mean]                     26699110, 178.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      0:1  200:149995  
+Error Set:
+Get "http://localhost:8084/accounts": dial tcp: lookup ::1127.0.: no such host
